@@ -14,6 +14,7 @@ import NewChatButton from "../../component/NewChatButton";
 import {useEffect} from "react";
 import {Loader} from "../../component/Loader";
 import {BollingLoader} from "../../component/BollingLoader";
+import {SafeAreaView} from "react-native";
 
 const RecentChatScreen = ({route}) => {
 
@@ -53,17 +54,18 @@ const RecentChatScreen = ({route}) => {
         }
     }, [])
     return (
-        <NativeBaseProvider>
-            <Box flex={1} px={4} bgColor={ThemeStore.baseProps.bgColor}>
-                <CustomHeader/>
-                <TabSwitcher items={tabItems}></TabSwitcher>
-                {ChatListModel.allChatFetching ? <BollingLoader/>
-                    : <TabContent items={tabItems} flex={.78}/>
-                }
-                <NewChatButton/>
-            </Box>
-        </NativeBaseProvider>
-
+        <SafeAreaView style={{flex:1}}>
+            <NativeBaseProvider>
+                <Box flex={1} px={4} bgColor={ThemeStore.baseProps.bgColor}>
+                    <CustomHeader/>
+                    <TabSwitcher items={tabItems}></TabSwitcher>
+                    {ChatListModel.allChatFetching ? <BollingLoader/>
+                        : <TabContent items={tabItems} flex={.78}/>
+                    }
+                    <NewChatButton/>
+                </Box>
+            </NativeBaseProvider>
+        </SafeAreaView>
     )
 }
 export default observer(RecentChatScreen)

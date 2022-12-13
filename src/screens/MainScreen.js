@@ -16,6 +16,7 @@ const MainScreen = () => {
     useEffect(() => {
         const autoLogin = async () => {
             const id = await AsyncStorage.getItem("@authorize_user_id")
+            console.log('login with user id :', id)
             if (id !== null && id !== undefined && id.trim().length > 0) {
                 await AuthStore.autoSignIn(id)
             }

@@ -69,6 +69,7 @@ class ChatListModel {
             this.setGroupsChat(groupChat)
         })
     }
+
     onGetAllChatById = async () => {
         try {
             this.setAllChatFetching(true)

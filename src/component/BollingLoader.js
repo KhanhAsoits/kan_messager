@@ -32,17 +32,17 @@ export const BollingLoader = () => {
 
     const bollOneInterpolate = bollOne.interpolate({
         inputRange: [0, 1],
-        outputRange: [1, 10]
+        outputRange: [1, 8]
     })
 
     const bollTwoInterpolate = bollTwo.interpolate({
         inputRange: [0, 1],
-        outputRange: [1, 10]
+        outputRange: [1, 8]
     })
 
     const bollThreeInterpolate = bollThree.interpolate({
         inputRange: [0, 1],
-        outputRange: [1, 10]
+        outputRange: [1, 8]
     })
 
     return (
