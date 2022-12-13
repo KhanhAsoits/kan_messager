@@ -4,10 +4,13 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import {TouchableOpacity} from "react-native";
 import ChatListModel from "../model/ChatListModel";
 
-const NewChatButton = () => {
+const NewChatButton = ({handleClick}) => {
 
+    const handleOpenModel = () => {
+        handleClick(true)
+    }
     return (
-        <TouchableOpacity activeOpacity={.9} onPress={ChatListModel.onGetAllChatById}>
+        <TouchableOpacity activeOpacity={.9} onPress={handleOpenModel}>
             <Box position={'absolute'} bottom={10} right={1} width={76} height={76} justifyContent={'center'}
                  alignItems={'center'} borderRadius={100} bgColor={'blue.400'}>
                 <Ionicons name={'chatbubbles'} size={30} color={'white'}/>

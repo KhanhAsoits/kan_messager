@@ -11,13 +11,17 @@ import GroupChatTab from "./GroupChatTab";
 import PersonalChatTab from "./PersonalChatTab";
 import ChatListModel from "../../model/ChatListModel";
 import NewChatButton from "../../component/NewChatButton";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {Loader} from "../../component/Loader";
 import {BollingLoader} from "../../component/BollingLoader";
 import {SafeAreaView} from "react-native";
+import NewChatItem from "../../component/NewChatItem";
 
 const RecentChatScreen = ({route}) => {
 
+    //state
+    const [newChatModal, setNewChatModal] = useState(false)
+    //static data
     let allChatItem = {
         id: 1,
         title: 'All Chats',
@@ -54,15 +58,16 @@ const RecentChatScreen = ({route}) => {
         }
     }, [])
     return (
-        <SafeAreaView style={{flex:1}}>
+        <SafeAreaView style={{flex: 1}}>
             <NativeBaseProvider>
                 <Box flex={1} px={4} bgColor={ThemeStore.baseProps.bgColor}>
+                    {newChatModal && <NewChatItem setOpen={setNewChatModal}/>}
                     <CustomHeader/>
                     <TabSwitcher items={tabItems}></TabSwitcher>
                     {ChatListModel.allChatFetching ? <BollingLoader/>
                         : <TabContent items={tabItems} flex={.78}/>
                     }
-                    <NewChatButton/>
+                    <NewChatButton handleClick={setNewChatModal}/>
                 </Box>
             </NativeBaseProvider>
         </SafeAreaView>
