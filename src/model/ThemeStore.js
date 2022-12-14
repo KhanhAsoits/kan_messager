@@ -1,12 +1,17 @@
 class ThemeStore {
 
     mode = 'light'
+    tabBorderTopColor = "rgba(0,0,0,.2)"
     baseProps = {
         textColor: this.mode === 'light' ? 'black' : 'white',
         bgColor: this.mode === 'light' ? 'white' : 'black',
         borderColor: this.mode === 'light' ? 'black' : 'white',
+
     }
 
+    setTabBorderTopColor = (value) => {
+        this.tabBorderTopColor = value
+    }
     setMode = (value) => {
         this.mode = value
     }
@@ -29,5 +34,6 @@ class ThemeStore {
         this.loadThemeForMode()
     }
 }
+
 const themeStore = new ThemeStore()
 export default themeStore

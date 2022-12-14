@@ -32,8 +32,9 @@ export function Member(roomId) {
     this.id = UUID()
 }
 
-export function ChatList(roomId, userId, unReadMessage, lastSeenAt, lastMessage, state, updateAt, type) {
+export function ChatList(roomId, userId, senderId, unReadMessage, lastSeenAt, lastMessage, state, updateAt, type) {
     this.id = UUID();
+    this.senderId = senderId;
     this.roomId = roomId;
     this.userId = userId;
     this.unReadMessage = unReadMessage;
@@ -57,8 +58,9 @@ export function UserRoleInRoom(userId, roomId, roleId) {
     this.roleId = roleId
 }
 
-export function User(id = "", username, email, password, age, phone, address, birthday) {
+export function User(id = "", username, email, password, age, phone, address, birthday, avatar) {
     this.id = id !== "" ? id : UUID()
+    this.avatar = avatar;
     this.address = address;
     this.birthday = birthday || null;
     this.verify = false;

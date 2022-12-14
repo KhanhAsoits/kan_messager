@@ -1,5 +1,5 @@
 import {NativeBaseProvider} from "native-base/src/core/NativeBaseProvider";
-import {Box, Center, HStack, Image, Text, VStack} from "native-base";
+import {Box} from "native-base";
 import {observer} from "mobx-react";
 import ThemeStore from "../../model/ThemeStore";
 import TabSwitcher from "../../component/TabSwitcher";
@@ -12,15 +12,18 @@ import PersonalChatTab from "./PersonalChatTab";
 import ChatListModel from "../../model/ChatListModel";
 import NewChatButton from "../../component/NewChatButton";
 import {useEffect, useState} from "react";
-import {Loader} from "../../component/Loader";
 import {BollingLoader} from "../../component/BollingLoader";
 import {SafeAreaView} from "react-native";
 import NewChatItem from "../../component/NewChatItem";
+import NewChatModel from "../../model/NewChatModel";
 
 const RecentChatScreen = ({route}) => {
-
     //state
     const [newChatModal, setNewChatModal] = useState(false)
+    useEffect(() => {
+        console.log("model:", newChatModal)
+        NewChatModel.setUserSelected([])
+    }, [newChatModal])
     //static data
     let allChatItem = {
         id: 1,
@@ -61,13 +64,13 @@ const RecentChatScreen = ({route}) => {
         <SafeAreaView style={{flex: 1}}>
             <NativeBaseProvider>
                 <Box flex={1} px={4} bgColor={ThemeStore.baseProps.bgColor}>
-                    {newChatModal && <NewChatItem setOpen={setNewChatModal}/>}
                     <CustomHeader/>
                     <TabSwitcher items={tabItems}></TabSwitcher>
                     {ChatListModel.allChatFetching ? <BollingLoader/>
                         : <TabContent items={tabItems} flex={.78}/>
                     }
                     <NewChatButton handleClick={setNewChatModal}/>
+                    {newChatModal && <NewChatItem setOpen={setNewChatModal}/>}
                 </Box>
             </NativeBaseProvider>
         </SafeAreaView>

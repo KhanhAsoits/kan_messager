@@ -2,10 +2,7 @@ import {makeAutoObservable} from "mobx";
 import {child, get, getDatabase, ref, set} from "firebase/database";
 import {firebaseApp} from "../../configs/firebase_config";
 import UserStore from "./UserStore";
-import {ChatList} from "../../types";
 import 'react-native-get-random-values'
-import {v4 as UUID} from 'uuid'
-import {faker} from "@faker-js/faker";
 
 class ChatListModel {
 

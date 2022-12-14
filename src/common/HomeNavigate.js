@@ -6,6 +6,7 @@ import RecentChatScreen from "../screens/recent_chat/RecentChatScreen";
 import CallScreen from "../screens/calls/CallScreen";
 import UserScreen from "../screens/user/UserScreen";
 import {Platform} from "react-native";
+import ThemeStore from "../model/ThemeStore";
 
 const HomeNavigate = ({route}) => {
     const Tab = createBottomTabNavigator()
@@ -31,7 +32,7 @@ const HomeNavigate = ({route}) => {
             return <Ionicons name={iconName} size={26} color={color}/>;
         },
         tabBarShowLabel: false,
-        tabBarStyle: {height: Platform.OS === 'android' ? 40 : 60}
+        tabBarStyle: {height: Platform.OS === 'android' ? 40 : 60,borderTopColor:ThemeStore.tabBorderTopColor}
     })
 
     return (
