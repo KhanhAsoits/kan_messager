@@ -66,8 +66,6 @@ export const BottomSheet = (props) => {
     }
     const handleContainerTouch = (e) => {
         if (e.nativeEvent.target === childRef.current?._nativeTag) {
-            console.log("target : ", e.nativeEvent.target)
-            console.log('child : ', childRef.current._nativeTag)
             if (!hasChange) {
                 handleClose()
             } else {

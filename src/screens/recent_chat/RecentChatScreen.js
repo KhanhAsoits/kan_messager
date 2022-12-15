@@ -1,5 +1,5 @@
 import {NativeBaseProvider} from "native-base/src/core/NativeBaseProvider";
-import {Box} from "native-base";
+import {Box, Button} from "native-base";
 import {observer} from "mobx-react";
 import ThemeStore from "../../model/ThemeStore";
 import TabSwitcher from "../../component/TabSwitcher";
@@ -16,8 +16,9 @@ import {BollingLoader} from "../../component/BollingLoader";
 import {SafeAreaView} from "react-native";
 import NewChatItem from "../../component/NewChatItem";
 import NewChatModel from "../../model/NewChatModel";
+import NavModel from "../../model/NavModel";
 
-const RecentChatScreen = ({route}) => {
+const RecentChatScreen = ({appNav, route}) => {
     //state
     const [newChatModal, setNewChatModal] = useState(false)
     useEffect(() => {
@@ -71,6 +72,9 @@ const RecentChatScreen = ({route}) => {
                     }
                     <NewChatButton handleClick={setNewChatModal}/>
                     {newChatModal && <NewChatItem setOpen={setNewChatModal}/>}
+                    <Button onPress={() => {
+                        appNav.navigate('chat_screen')
+                    }}>Click to chat screen</Button>
                 </Box>
             </NativeBaseProvider>
         </SafeAreaView>

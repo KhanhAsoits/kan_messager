@@ -7,41 +7,17 @@ import CallScreen from "../screens/calls/CallScreen";
 import UserScreen from "../screens/user/UserScreen";
 import {Platform} from "react-native";
 import ThemeStore from "../model/ThemeStore";
+import ChatScreen from "../screens/chat/ChatScreen";
+import {createNativeStackNavigator} from "@react-navigation/native-stack";
+import AllScreen from "./AllScreen";
 
 const HomeNavigate = ({route}) => {
-    const Tab = createBottomTabNavigator()
-
-    const tabConfigs = ({route}) => ({
-        tabBarIcon: ({focused, color, size}) => {
-            let iconName;
-
-            switch (route.name) {
-                case "home_screen":
-                    iconName = focused ? "chatbubble" : "chatbubble-outline"
-                    break;
-                case "recent_screen":
-                    iconName = focused ? "time" : "time-outline"
-                    break;
-                case "call_screen":
-                    iconName = focused ? "call" : "call-outline"
-                    break;
-                case "user_screen":
-                    iconName = focused ? "person-circle" : "person-circle-outline"
-                    break;
-            }
-            return <Ionicons name={iconName} size={26} color={color}/>;
-        },
-        tabBarShowLabel: false,
-        tabBarStyle: {height: Platform.OS === 'android' ? 40 : 60,borderTopColor:ThemeStore.tabBorderTopColor}
-    })
-
+    const Stack = createNativeStackNavigator()
     return (
-        <Tab.Navigator screenOptions={tabConfigs}>
-            <Tab.Screen name={'home_screen'} options={{headerShown: false}} component={HomeScreen}></Tab.Screen>
-            <Tab.Screen name={'recent_screen'} options={{headerShown: false}} component={RecentChatScreen}></Tab.Screen>
-            <Tab.Screen name={'call_screen'} options={{headerShown: false}} component={CallScreen}></Tab.Screen>
-            <Tab.Screen name={'user_screen'} options={{headerShown: false}} component={UserScreen}></Tab.Screen>
-        </Tab.Navigator>
+        <Stack.Navigator>
+            <Stack.Screen name={'all_screen'} options={{headerShown: false}} component={AllScreen}></Stack.Screen>
+            <Stack.Screen name={'chat_screen'} options={{headerShown: false}} component={ChatScreen}></Stack.Screen>
+        </Stack.Navigator>
     )
 }
 export default observer(HomeNavigate);
