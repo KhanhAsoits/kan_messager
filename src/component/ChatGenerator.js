@@ -4,13 +4,13 @@ import 'react-native-get-random-values'
 import {v4 as UUID} from 'uuid'
 import ChatItem from "./ChatItem";
 
-const ChatGenerator = ({chats}) => {
+const ChatGenerator = ({chats,appNav}) => {
     return (
         <ScrollView showsVerticalScrollIndicator={false}>
             <VStack space={4}>
                 {chats.map((chat, index) => {
                     return (
-                        <ChatItem key={UUID()} chatItem={chat}/>
+                        <ChatItem appNav={appNav} key={UUID()} chatItem={chat}/>
                     )
                 })}
             </VStack>

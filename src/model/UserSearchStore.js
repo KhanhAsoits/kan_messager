@@ -30,58 +30,43 @@ class UserSearchStore {
         this.listLocalUser = value
     }
 
-    onSearchInLocal = () => {
-        const listFound = []
-        for (let user of this.listUserFound) {
-            if (user.username.includes(this.query.toLowerCase())) {
-                listFound.push(user)
-            }
-        }
-        if (listFound.length > 0) {
-            this.setListLocalUser(listFound)
-            return true;
-        }
-        return false
-    }
-
     setListUserFound = (value) => {
         this.listUserFound = value
     }
 
     onFetchSync = async () => {
-        setTimeout(() => {
-            //connect db
-            const db = getDatabase(firebaseApp)
-            get(query(ref(db, 'users'), orderByChild('username'), startAt(this.query.toLowerCase()), endAt(this.query.toLowerCase() + "\uf8ff"))).then((sns) => {
-                if (sns.exists()) {
-                    this.setListUserFound(Object.values(sns.val()))
-                    this.onSearchInLocal()
-                } else {
-                    console.log('no result')
-                    this.setListLocalUser([])
+        const db = getDatabase(firebaseApp)
+        get(query(ref(db, 'users'), orderByChild('username'), startAt(this.query.toLowerCase()), endAt(this.query.toLowerCase() + "\uf8ff"))).then((sns) => {
+            if (sns.exists()) {
+                //add id
+                const listUser = []
+                const listKey = Object.keys(sns.val())
+                const listValue = Object.values(sns.val())
+                for (let i = 0; i < listKey.length; i++) {
+                    const user = {id: listKey[i], ...listValue[i]}
+                    listUser.push(user)
                 }
-            })
+                this.setListUserFound(listUser)
+            } else {
+                console.log('no result')
+                this.setListUserFound([])
+            }
+        })
+
+        setTimeout(() => {
             this.setFetching(false)
-        }, 200)
+        }, 300)
     }
 
     onGetUserByName = async () => {
         try {
             if (this.query.length === 0) {
-                this.setListLocalUser([])
+                this.setListUserFound([])
                 return;
             }
             if (!this.onFetching) {
                 this.setFetching(true)
-                let searchInLocal = false
-                if (this.listUserFound.length > 0) {
-                    searchInLocal = this.onSearchInLocal()
-                }
-                if (!searchInLocal) {
-                    await this.onFetchSync()
-                } else {
-                    this.setFetching(false)
-                }
+                await this.onFetchSync()
             }
         } catch (e) {
             console.log(e)

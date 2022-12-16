@@ -9,6 +9,7 @@ import {useEffect, useLayoutEffect} from "react";
 import NewChatModel from "../model/NewChatModel";
 import UserItem from "./UserItem";
 import avatar from "../../assets/static/images/user.jpg";
+import UserStore from "../model/UserStore";
 
 const UserFinderResult = ({height, selectListHeight}) => {
 
@@ -22,9 +23,15 @@ const UserFinderResult = ({height, selectListHeight}) => {
                 {UserSearchStore.onFetching ? <ActivityIndicator color={'black'} size={26}/> :
                     <VStack space={3}>
                         {
-                            UserSearchStore.listLocalUser.map((val, index) => {
+                            UserSearchStore.listUserFound.map((val, index) => {
                                 return (
-                                    <UserItem key={index.toString()} user={val} index={index}/>
+                                    <Box key={index.toString()}>
+                                        {console.log(UserStore.user.id)}
+                                        {console.log(val.id)}
+                                        {UserStore.user.id !== val.id &&
+                                            <UserItem user={val} index={index}/>
+                                        }
+                                    </Box>
                                 )
                             })
                         }

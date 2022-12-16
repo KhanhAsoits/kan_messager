@@ -29,22 +29,22 @@ const RecentChatScreen = ({appNav, route}) => {
     let allChatItem = {
         id: 1,
         title: 'All Chats',
-        render: <AllChatTab/>
+        render: <AllChatTab appNav={appNav}/>
     }
     let personChatTab = {
         id: 2,
         title: 'Person',
-        render: <PersonalChatTab/>
+        render: <PersonalChatTab appNav={appNav}/>
     }
     let workChatTab = {
         id: 3,
         title: 'Work',
-        render: <WorkChatTab/>
+        render: <WorkChatTab appNav={appNav}/>
     }
     let groupChatTab = {
         id: 4,
         title: 'Group',
-        render: <GroupChatTab/>
+        render: <GroupChatTab appNav={appNav}/>
     }
     const tabItems = [
         allChatItem,
@@ -72,9 +72,6 @@ const RecentChatScreen = ({appNav, route}) => {
                     }
                     <NewChatButton handleClick={setNewChatModal}/>
                     {newChatModal && <NewChatItem setOpen={setNewChatModal}/>}
-                    <Button onPress={() => {
-                        appNav.navigate('chat_screen')
-                    }}>Click to chat screen</Button>
                 </Box>
             </NativeBaseProvider>
         </SafeAreaView>

@@ -67,6 +67,7 @@ export const BottomSheet = (props) => {
     const handleContainerTouch = (e) => {
         if (e.nativeEvent.target === childRef.current?._nativeTag) {
             if (!hasChange) {
+                Keyboard.dismiss()
                 handleClose()
             } else {
                 Alert.alert("Discard Change", "Do you want discard?", [
