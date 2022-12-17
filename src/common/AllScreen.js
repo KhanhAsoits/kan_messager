@@ -3,14 +3,11 @@ import HomeScreen from "../screens/home/HomeScreen";
 import RecentChatScreen from "../screens/recent_chat/RecentChatScreen";
 import CallScreen from "../screens/calls/CallScreen";
 import UserScreen from "../screens/user/UserScreen";
-import ChatScreen from "../screens/chat/ChatScreen";
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import {Platform} from "react-native";
 import ThemeStore from "../model/ThemeStore";
 import {useNavigation} from "@react-navigation/native";
-import {useEffect} from "react";
-import NavModel from "../model/NavModel";
 
 const AllScreen = () => {
     const appNav = useNavigation()
@@ -43,7 +40,7 @@ const AllScreen = () => {
     return (
         <Tab.Navigator screenOptions={tabConfigs}>
             <Tab.Screen name={'home_screen'} options={{headerShown: false}} component={HomeScreen}></Tab.Screen>
-            <Tab.Screen name={'recent_screen'} options={{headerShown: false}}>
+            <Tab.Screen name={'recent_screen'} options={{lazy: false, headerShown: false}}>
                 {props => <RecentChatScreen appNav={appNav} {...props}/>}
             </Tab.Screen>
             <Tab.Screen name={'call_screen'} options={{headerShown: false}} component={CallScreen}></Tab.Screen>

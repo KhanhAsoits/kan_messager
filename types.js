@@ -1,23 +1,25 @@
 import 'react-native-get-random-values'
 import {v4 as UUID} from 'uuid'
 
-export function MessageBody(text, media) {
+export function MessageBody(type, text, media) {
+    this.type = type;
     this.text = text;
-    this.media = media
+    this.media = media;
 }
 
-export function Message(userId, roomId, body, updateAt) {
+export function Message(senderId, roomId, body, updateAt) {
     this.id = UUID()
-    this.userId = userId;
+    this.senderId = senderId;
     this.roomId = roomId;
     this.body = body;
     this.createdAt = new Date().getTime();
     this.updatedAt = updateAt;
 }
 
-export function Room(roomName, thumbnail, background, limit = 10, updateAt, state, type, rules = []) {
+export function Room(roomName, thumbnail, background, limit = 10, updateAt, state, type, rules = [], members) {
     this.id = UUID()
     this.roomName = roomName
+    this.members = members;
     this.thumbnail = thumbnail
     this.background = background
     this.limit = limit
@@ -32,7 +34,7 @@ export function Member(roomId) {
     this.id = UUID()
 }
 
-export function ChatList(roomId, name, userId, unReadMessage, lastSeenAt, lastMessage, state, updateAt, type) {
+export function ChatList(roomId, name, userId, unReadMessage, lastSeenAt, lastMessage, state, updateAt, type, key) {
     this.id = UUID();
     this.name = name;
     this.roomId = roomId;
@@ -44,6 +46,7 @@ export function ChatList(roomId, name, userId, unReadMessage, lastSeenAt, lastMe
     this.updatedAt = updateAt;
     this.createdAt = new Date().getTime()
     this.type = type
+    this.key = key
 }
 
 export function Role(roleName) {

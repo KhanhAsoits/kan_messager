@@ -3,8 +3,17 @@ import {Center, HStack, KeyboardAvoidingView} from "native-base";
 import {SCREEN_WIDTH} from "../util/helper";
 import {TextInput, TouchableOpacity} from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import SingleChatModel from "../model/SingleChatModel";
+import {Message} from "./Message";
+import {MessageBody} from "../../types";
 
-const Typer = ({typerHeight, typerDefaultHeight, setTyperHeight, message, setMessage}) => {
+const Typer = ({roomId, typerHeight, typerDefaultHeight, setTyperHeight, message, setMessage}) => {
+    const handleSendMessage = () => {
+        if (message !== "") {
+            const message_ = new MessageBody("text", message, [])
+            SingleChatModel.onSendMessage(message_, roomId)
+        }
+    }
     return (
         <KeyboardAvoidingView
             style={{maxHeight: 200}}
@@ -66,7 +75,7 @@ const Typer = ({typerHeight, typerDefaultHeight, setTyperHeight, message, setMes
                     <TouchableOpacity>
                         <Ionicons name={'attach-outline'} size={33} color={'rgba(0,0,0,0.3)'}/>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{
+                    <TouchableOpacity onPress={handleSendMessage} style={{
                         backgroundColor: '#2F80ED',
                         paddingVertical: 12,
                         paddingHorizontal: 13,

@@ -2,9 +2,9 @@ import {observer} from "mobx-react";
 import ChatGenerator from "../../component/ChatGenerator";
 import ChatListModel from "../../model/ChatListModel";
 
-const GroupChatTab = () => {
+const GroupChatTab = ({appNav}) => {
     return (
-        <ChatGenerator chats={ChatListModel.groups}></ChatGenerator>
+        <ChatGenerator appNav={appNav} chats={ChatListModel.groups}></ChatGenerator>
     )
 }
 export default observer(GroupChatTab)

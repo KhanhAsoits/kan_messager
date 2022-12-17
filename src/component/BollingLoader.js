@@ -2,7 +2,7 @@ import {Animated, StyleSheet} from "react-native";
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../util/helper";
 import {useEffect, useRef} from "react";
 
-export const BollingLoader = () => {
+export const BollingLoader = ({speed = 200}) => {
     let bollOne = useRef(new Animated.Value(0)).current
     let bollTwo = useRef(new Animated.Value(0)).current
     let bollThree = useRef(new Animated.Value(0)).current
@@ -12,17 +12,17 @@ export const BollingLoader = () => {
             Animated.sequence([
                     Animated.timing(bollOne, {
                         toValue: 1,
-                        duration: 200,
+                        duration: speed,
                         useNativeDriver: true
                     }),
                     Animated.timing(bollTwo, {
                         toValue: 1,
-                        duration: 200,
+                        duration: speed,
                         useNativeDriver: true
                     }),
                     Animated.timing(bollThree, {
                         toValue: 1,
-                        duration: 200,
+                        duration: speed,
                         useNativeDriver: true
                     }),
                 ]
