@@ -44,7 +44,6 @@ const ChatScreen = ({route}) => {
                         </ImageBackground>
                     </Center>
                 }
-
             </NativeBaseProvider>
         </SafeAreaView>
     )

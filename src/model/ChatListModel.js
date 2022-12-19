@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {child, get, getDatabase, ref, set} from "firebase/database";
+import {child, get, getDatabase, onValue, ref, set} from "firebase/database";
 import {firebaseApp} from "../../configs/firebase_config";
 import UserStore from "./UserStore";
 import 'react-native-get-random-values'
@@ -67,6 +67,17 @@ class ChatListModel {
         })
     }
 
+    onListenChatList = (userId) => {
+        const db = getDatabase(firebaseApp)
+        const messageCountRef = ref(db, "chats/" + userId)
+        const listener = onValue(messageCountRef, (sns) => {
+            if (sns.exists()) {
+                // this.setAllChat([...sns.val()])
+                // this.onClassifyData([...sns.val()])
+            }
+        })
+        return listener;
+    }
     onGetAllChatById = async () => {
         try {
             this.setAllChatFetching(true)

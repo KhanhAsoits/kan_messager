@@ -9,10 +9,8 @@ import UserStore from "../model/UserStore";
 
 const MessageView = ({roomId, headerHeight, typerHeight, typerDefaultHeight}) => {
     useLayoutEffect(() => {
-
-    }, [SingleChatModel.messages])
-
-    useEffect(() => {
+        SingleChatModel.onReadMessage(roomId)
+        return SingleChatModel.onListenChat(roomId)
     }, [roomId])
     return (
         <Box onTouchStart={() => {

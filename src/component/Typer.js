@@ -10,8 +10,13 @@ import {MessageBody} from "../../types";
 const Typer = ({roomId, typerHeight, typerDefaultHeight, setTyperHeight, message, setMessage}) => {
     const handleSendMessage = () => {
         if (message !== "") {
-            const message_ = new MessageBody("text", message, [])
-            SingleChatModel.onSendMessage(message_, roomId)
+            setTimeout(() => {
+                const message_ = new MessageBody("text", message, [])
+                let result = SingleChatModel.onSendMessage(message_, roomId)
+                if (result) {
+                    setMessage("")
+                }
+            }, 100)
         }
     }
     return (
@@ -75,7 +80,7 @@ const Typer = ({roomId, typerHeight, typerDefaultHeight, setTyperHeight, message
                     <TouchableOpacity>
                         <Ionicons name={'attach-outline'} size={33} color={'rgba(0,0,0,0.3)'}/>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={handleSendMessage} style={{
+                    <TouchableOpacity activeOpacity={.8} onPress={handleSendMessage} style={{
                         backgroundColor: '#2F80ED',
                         paddingVertical: 12,
                         paddingHorizontal: 13,

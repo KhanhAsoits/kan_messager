@@ -45,22 +45,27 @@ class SingleChatModel {
                 //    after add message , update chat list
             })
 
-            get(child(ref(db), "chats/" + UserStore.user.id)).then(async (sns) => {
-                if (sns.exists()) {
-                    let chats = sns.val()
-                    for (let i = 0; i < chats.length; i++) {
-                        if (chats[i].roomId === roomId) {
-                            chats[i].updatedAt = new Date().getTime()
-                            chats[i].unReadMessage += 1
-                            chats[i].lastMessage = messageBody.text
+
+            for (let memberInRoom of this.room.members) {
+                get(child(ref(db), "chats/" + memberInRoom)).then(async (sns) => {
+                    if (sns.exists()) {
+                        let chats = sns.val()
+                        for (let i = 0; i < chats.length; i++) {
+                            if (chats[i].roomId === roomId) {
+                                chats[i].updatedAt = new Date().getTime()
+                                chats[i].unReadMessage += 1
+                                chats[i].lastMessage = messageBody.text
+                            }
                         }
+                        await set(ref(db, "chats/" + memberInRoom), [...chats])
+                    } else {
+                        console.log('no result')
                     }
-                    await set(ref(db, "chats/" + UserStore.user.id), [...chats])
-                } else {
-                    console.log('no result')
-                }
-            })
+                })
+            }
+            return true
         } catch (e) {
+            return false
             console.log(e)
         }
     }
@@ -97,21 +102,32 @@ class SingleChatModel {
         this.messages = value
     }
 
-    onListenChat = (roomId) => {
+    onReadMessage = (roomId) => {
         const db = getDatabase(firebaseApp)
-        const messageCountRef = ref(db, "messages/" + roomId)
-        onValue(messageCountRef, (sns) => {
+        //    update readMessage
+        get(child(ref(db), "chats/" + UserStore.user.id)).then(async (sns) => {
             if (sns.exists()) {
-                const listMessage = getChildOfObject(sns)
-                if (listMessage.length > 0) {
-                    this.setMessages(listMessage)
+                let chats = getChildOfObject(sns)
+                for (let i = 0; i < chats.length; i++) {
+                    console.log('chat:', chats[i].id)
                 }
-                console.log(listMessage)
-            } else {
-                console.log('no messages on listen')
+                await set(ref(db, "chats/" + UserStore.user.id), [...chats])
             }
         })
     }
+
+    onListenChat = (roomId) => {
+        const db = getDatabase(firebaseApp)
+        const messageCountRef = ref(db, "messages/" + roomId)
+        const listener = onValue(messageCountRef, (sns) => {
+            if (sns.exists()) {
+                let newMessage = [...sns.val()]
+                this.setMessages(newMessage)
+            }
+        })
+        return listener;
+    }
+
 
     clear() {
         this.setMessages([])

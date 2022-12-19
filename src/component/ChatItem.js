@@ -4,11 +4,18 @@ import {faker} from "@faker-js/faker";
 import ThemeStore from "../model/ThemeStore";
 import user from '../../assets/static/images/user.jpg'
 import {TouchableOpacity} from "react-native";
+import {useEffect} from "react";
+import ChatListModel from "../model/ChatListModel";
+import UserStore from "../model/UserStore";
 
 const ChatItem = ({chatItem, appNav}) => {
     const handleToChatScreen = () => {
         appNav.navigate("chat_screen", {roomId: chatItem?.roomId})
     }
+    useEffect(() => {
+        console.log('render')
+        return ChatListModel.onListenChatList(UserStore.user.id)
+    }, [UserStore.user.id])
     return (
         <TouchableOpacity activeOpacity={.8} onPress={handleToChatScreen}>
             <HStack bgColor={ThemeStore.baseProps.bgColor} borderRadius={8} py={2} width={'100%'}
