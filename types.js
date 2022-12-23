@@ -7,13 +7,14 @@ export function MessageBody(type, text, media) {
     this.media = media;
 }
 
-export function Message(senderId, roomId, body, updateAt) {
+export function Message(senderId, roomId, body, updateAt, senderName) {
     this.id = UUID()
     this.senderId = senderId;
     this.roomId = roomId;
     this.body = body;
     this.createdAt = new Date().getTime();
     this.updatedAt = updateAt;
+    this.senderName = senderName
 }
 
 export function Room(roomName, thumbnail, background, limit = 10, updateAt, state, type, rules = [], members) {

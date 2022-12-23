@@ -64,8 +64,8 @@ class AuthStore {
                     get(query(dbRef, orderByChild('email'), equalTo(this.singInInfo.username))).then((sns) => {
                         if (sns.exists()) {
                             const id = Object.keys(sns.val())[0]
-                            const {name, email, age, address, password, phone} = sns.val()[id]
-                            const user = new User(id, name, email, password, age, phone, address, null)
+                            const {username, email, age, address, password, phone} = sns.val()[id]
+                            const user = new User(id, username, email, password, age, phone, address, null)
                             if (user.password.toString() === this.singInInfo.password) {
                                 UserStore.setUser(user)
                                 return;
@@ -185,8 +185,8 @@ class AuthStore {
                 const dbRef = ref(getDatabase(firebaseApp))
                 get(child(dbRef, `users/${id}`)).then(sns => {
                     if (sns.exists()) {
-                        const {name, email, age, address, password, phone} = sns.val()
-                        const user = new User(id, name, email, password, age, phone, address, null)
+                        const {username, email, age, address, password, phone} = sns.val()
+                        const user = new User(id, username, email, password, age, phone, address, null)
                         UserStore.setUser(user)
                     } else {
                         Alert.alert('Wrong', 'Something wrong when processing auto login, try with manual login.')

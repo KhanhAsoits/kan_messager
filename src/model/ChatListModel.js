@@ -72,8 +72,8 @@ class ChatListModel {
         const messageCountRef = ref(db, "chats/" + userId)
         const listener = onValue(messageCountRef, (sns) => {
             if (sns.exists()) {
-                // this.setAllChat([...sns.val()])
-                // this.onClassifyData([...sns.val()])
+                this.setAllChat([...sns.val()])
+                this.onClassifyData([...sns.val()])
             }
         })
         return listener;

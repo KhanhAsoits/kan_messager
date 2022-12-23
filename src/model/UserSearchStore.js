@@ -2,6 +2,7 @@ import {makeAutoObservable} from "mobx";
 import {equalTo, get, getDatabase, startAt, endAt, orderByChild, query, ref} from "firebase/database";
 import {firebaseApp} from "../../configs/firebase_config";
 import NewChatModel from "./NewChatModel";
+import UserStore from "./UserStore";
 
 class UserSearchStore {
 
@@ -36,7 +37,8 @@ class UserSearchStore {
 
     onFetchSync = async () => {
         const db = getDatabase(firebaseApp)
-        get(query(ref(db, 'users'), orderByChild('username'), startAt(this.query.toLowerCase()), endAt(this.query.toLowerCase() + "\uf8ff"))).then((sns) => {
+        get(query(ref(db, 'users'), orderByChild('username'), startAt(this.query[0] || ""), endAt(this.query[this.query.length - 1] + "\uf8ff"))).then((sns) => {
+            console.log(UserStore.user)
             if (sns.exists()) {
                 //add id
                 const listUser = []

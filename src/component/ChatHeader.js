@@ -7,9 +7,7 @@ import SingleChatModel from "../model/SingleChatModel";
 import {useEffect, useLayoutEffect} from "react";
 
 const ChatHeader = ({roomId, headerHeight}) => {
-    useLayoutEffect(() => {
-        SingleChatModel.onFetchingRoom(roomId)
-    }, [])
+
     return (
         <HStack width={'100%'} borderBottomWidth={1} borderBottomColor={'gray.200'} height={headerHeight}
                 backgroundColor={'white'} shadow={1} px={2}
@@ -22,7 +20,6 @@ const ChatHeader = ({roomId, headerHeight}) => {
                 </Ionicons>
             </TouchableOpacity>
             <HStack space={6} alignItems={'center'} justifyContent={'center'}>
-
                 {SingleChatModel.roomFetching ?
                     <Box bgColor={'gray.200'} width={60} height={60}
                          borderRadius={100}></Box>
@@ -39,15 +36,15 @@ const ChatHeader = ({roomId, headerHeight}) => {
                             <Box w={'80%'} h={4} borderRadius={12} bgColor={'gray.200'}></Box>
                         </>
                         :
-                        <>
-                            <Text fontSize={19} fontWeight={'600'}>{SingleChatModel.room.roomName}</Text>
+                        <Box maxW={150}>
+                            <Text fontSize={19} fontWeight={'600'} numberOfLines={1}>{SingleChatModel.room.roomName}</Text>
                             {SingleChatModel.room.limit > 2 ?
                                 <Text fontSize={13} fontWeight={'300'}>7 online
                                     from {SingleChatModel.room.limit} people</Text>
                                 :
                                 <Text fontSize={13} fontWeight={'300'}>Active on 7 minutes</Text>
                             }
-                        </>
+                        </Box>
                     }
                 </VStack>
                 <TouchableOpacity>

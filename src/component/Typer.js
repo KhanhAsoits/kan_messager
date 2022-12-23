@@ -1,28 +1,49 @@
 import {observer} from "mobx-react";
-import {Center, HStack, KeyboardAvoidingView} from "native-base";
+import {Box, Center, HStack, KeyboardAvoidingView} from "native-base";
 import {SCREEN_WIDTH} from "../util/helper";
-import {TextInput, TouchableOpacity} from "react-native";
+import {Keyboard, TextInput, TouchableOpacity} from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import SingleChatModel from "../model/SingleChatModel";
-import {Message} from "./Message";
+import {Message} from "../../types";
 import {MessageBody} from "../../types";
+import {useEffect} from "react";
+import UserStore from "../model/UserStore";
 
-const Typer = ({roomId, typerHeight, typerDefaultHeight, setTyperHeight, message, setMessage}) => {
+const Typer = ({
+                   roomId,
+                   typerHeight,
+                   typerDefaultHeight,
+                   setTyperHeight,
+                   message,
+                   setMessage,
+                   setPaddingBottom,
+                   paddingBottom
+               }) => {
     const handleSendMessage = () => {
         if (message !== "") {
+            setMessage("")
             setTimeout(() => {
                 const message_ = new MessageBody("text", message, [])
-                let result = SingleChatModel.onSendMessage(message_, roomId)
-                if (result) {
-                    setMessage("")
-                }
-            }, 100)
+                SingleChatModel.onSendMessage(message_, roomId)
+            }, 50)
         }
     }
+    useEffect(() => {
+        const keyboardShowListener = Keyboard.addListener("keyboardWillShow", () => {
+            setPaddingBottom(350)
+        })
+        const keyboardHideListener = Keyboard.addListener("keyboardWillHide", () => {
+            setPaddingBottom(100)
+        })
+        return () => {
+            keyboardShowListener.remove()
+            keyboardHideListener.remove()
+        }
+    }, [])
     return (
         <KeyboardAvoidingView
-            style={{maxHeight: 200}}
-            h={(typerHeight || typerDefaultHeight) + (100 - typerDefaultHeight)}
+            style={{maxHeight: 160}}
+            h={Math.max(typerDefaultHeight, typerHeight) + (100 - typerDefaultHeight)}
             borderTopWidth={1}
             borderTopColor={'gray.200'}
             position={'absolute'}
@@ -33,7 +54,7 @@ const Typer = ({roomId, typerHeight, typerDefaultHeight, setTyperHeight, message
             <Center bgColor={'white'} height={'100%'} style={{maxHeight: 200}} alignItems={'center'}
                     justifyContent={'center'}>
                 {/*    chat typer*/}
-                <HStack flexWrap={'wrap'} style={{maxHeight: 150, height: (typerHeight || typerDefaultHeight)}}
+                <HStack flexWrap={'wrap'} style={{maxHeight: 120, height: Math.max(typerDefaultHeight, typerHeight)}}
                         bgColor={'white'}
                         py={0}
                         my={0}
@@ -44,39 +65,32 @@ const Typer = ({roomId, typerHeight, typerDefaultHeight, setTyperHeight, message
                     <TouchableOpacity>
                         <Ionicons name={'happy-outline'} size={30} color={'rgba(0,0,0,0.3)'}/>
                     </TouchableOpacity>
-                    <TextInput
-                        value={message}
-                        multiline={true}
-                        numberOfLines={1}
-                        textAlignVertical={'bottom'}
-                        onContentSizeChange={(e) => {
-                            const contentHeight = e.nativeEvent.contentSize.height
-                            let oneLineHeight = 17
-                            let lines = Math.round(contentHeight / oneLineHeight)
-                            if (lines > 1) {
-                                console.log(contentHeight)
-                                let height = Math.round(contentHeight) + 20
-                                if (height > typerDefaultHeight) {
-                                    setTyperHeight(height)
-                                } else {
-                                    setTyperHeight(typerDefaultHeight)
-                                }
-                            } else {
-                                setTyperHeight(typerDefaultHeight)
-                            }
-                        }}
-                        onChangeText={text => setMessage(text)}
-                        style={{
-                            backgroundColor: 'rgba(0,0,0,0.04)',
-                            paddingHorizontal: 12,
-                            borderRadius: 20,
-                            paddingTop: 14,
-                            width: '60%',
-                            maxHeight: 150,
-                            height: '100%',
-                        }}
-                        placeholder={'Write a message...'}
-                    />
+                    <Box style={{
+                        backgroundColor: 'rgba(0,0,0,0.04)',
+                        paddingHorizontal: 12,
+                        paddingTop: 9,
+                        paddingBottom: 9,
+                        width: "60%",
+                        height: "100%",
+                        borderRadius: 20,
+                    }}>
+                        <TextInput
+                            value={message}
+                            multiline={true}
+                            textAlignVertical={'center'}
+                            onContentSizeChange={(e) => {
+                                const contentHeight = e.nativeEvent.contentSize.height
+                                setTyperHeight(contentHeight)
+                            }}
+                            onChangeText={text => setMessage(text)}
+                            style={{
+                                width: '100%',
+                                maxHeight: 120,
+                                height: '100%',
+                            }}
+                            placeholder={'Write a message...'}
+                        />
+                    </Box>
                     <TouchableOpacity>
                         <Ionicons name={'attach-outline'} size={33} color={'rgba(0,0,0,0.3)'}/>
                     </TouchableOpacity>

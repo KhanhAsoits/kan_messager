@@ -10,6 +10,8 @@ import ChatHeader from "../../component/ChatHeader";
 import MessageView from "../../component/MessageView";
 import Typer from "../../component/Typer";
 import {BollingLoader} from "../../component/BollingLoader";
+import SingleChatModel from "../../model/SingleChatModel";
+import UserStore from "../../model/UserStore";
 
 const ChatScreen = ({route}) => {
     const headerHeight = 76;
@@ -19,26 +21,36 @@ const ChatScreen = ({route}) => {
     const nav = useNavigation()
     const [message, setMessage] = useState('')
     const [loading, setLoading] = useState(true)
-
+    const [paddingBottom, setPaddingBottom] = useState(0)
+    const defaultBottomPadding = 100
     useEffect(() => {
         setTimeout(() => {
             setLoading(false)
         }, 500)
     }, [])
+    useEffect(() => {
+        SingleChatModel.onFetchingRoom(roomId)
+    }, [roomId])
 
+    useEffect(() => {
+        console.log(UserStore.user)
+    }, [UserStore.user])
+    console.log(UserStore.user)
     return (
         <SafeAreaView style={{flex: 1}}>
             <NativeBaseProvider>
                 {loading ?
-                    <BollingLoader speed={50}></BollingLoader>
+                    <BollingLoader speed={200}></BollingLoader>
                     :
                     <Center width={SCREEN_WIDTH}>
                         <ImageBackground source={avatar} resizeMode={'cover'}
                                          style={{width: SCREEN_WIDTH, height: SCREEN_HEIGHT}}>
                             <ChatHeader roomId={roomId} headerHeight={headerHeight}/>
-                            <MessageView roomId={roomId} headerHeight={headerHeight} typerHeight={typerHeight}
+                            <MessageView bottomPadding={paddingBottom} defaultBottomPadding={defaultBottomPadding}
+                                         roomId={roomId} headerHeight={headerHeight} typerHeight={typerHeight}
                                          typerDefaultHeight={typerDefaultHeight}/>
-                            <Typer roomId={roomId} message={message} typerDefaultHeight={typerDefaultHeight}
+                            <Typer setPaddingBottom={setPaddingBottom} roomId={roomId} message={message}
+                                   typerDefaultHeight={typerDefaultHeight}
                                    typerHeight={typerHeight}
                                    setTyperHeight={setTyperHeight} setMessage={setMessage}></Typer>
                         </ImageBackground>

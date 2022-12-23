@@ -1,12 +1,11 @@
 import {makeAutoObservable} from "mobx";
 import {Alert} from "react-native";
-import {getDatabase, set, ref, get, child, push, query, orderByChild, equalTo} from "firebase/database";
+import {getDatabase, set, ref, get, child} from "firebase/database";
 import {firebaseApp} from "../../configs/firebase_config";
 import {ChatList, Room} from "../../types";
-import {getRoomName} from "../util/helper";
+import {getChatName, getRoomName} from "../util/helper";
 import UserStore from "./UserStore";
 import ChatListModel from "./ChatListModel";
-import NewChatItem from "../component/NewChatItem";
 
 class NewChatModel {
     userSelected = []
@@ -62,11 +61,7 @@ class NewChatModel {
                     return val.id
                 })
                 chatKeyArr.push(UserStore.user.id)
-                if (roomNameArr.length > 1) {
-                    roomNameArr.push(UserStore.user.username)
-                }
-                console.log(getRoomName(chatKeyArr, ","))
-
+                roomNameArr.push(UserStore.user.username)
                 //check chat has exit
                 try {
                     let chats = (await get(child(ref(db), "chats/" + UserStore.user.id))).val()
@@ -92,7 +87,8 @@ class NewChatModel {
                 if (ChatListModel.allChat.length > 0) {
                     myChatList = [...ChatListModel.allChat]
                 }
-                const newChat = new ChatList(room.id, roomName, UserStore.user.id, 0, new Date().getTime(), "You has been created a new chat.", 1, new Date().getTime(), getType, getRoomName(chatKeyArr, ","));
+                const chatName = getChatName(UserStore.user.username,roomNameArr,",")
+                const newChat = new ChatList(room.id, chatName, UserStore.user.id, 1, new Date().getTime(), "You has been created a new chat.", 1, new Date().getTime(), getType, getRoomName(chatKeyArr, ","));
                 myChatList.push(newChat)
                 await set(ref(db, "chats/" + UserStore.user.id), myChatList)
                 // // success
@@ -107,7 +103,9 @@ class NewChatModel {
                         if (chats?.length > 0) {
                             myChatList = [...chats]
                         }
-                        const newChat = new ChatList(room.id, roomName, user.id, 0, new Date().getTime(), `${UserStore.user.username || 'stranger'} has been created a new chat.`, 1, new Date().getTime(), getType, getRoomName(chatKeyArr, ","));
+                        const chatName = getChatName(user.username,roomNameArr,",")
+
+                        const newChat = new ChatList(room.id, chatName, user.id, 1, new Date().getTime(), `${UserStore.user.username || 'stranger'} has been created a new chat.`, 1, new Date().getTime(), getType, getRoomName(chatKeyArr, ","));
                         myChatList.push(newChat)
                         await set(ref(db, "chats/" + user.id), myChatList)
                     })
