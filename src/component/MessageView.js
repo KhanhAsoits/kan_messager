@@ -1,66 +1,86 @@
 import {observer} from "mobx-react";
-import {SCREEN_HEIGHT, SCREEN_WIDTH} from "../util/helper";
-import {Box, ScrollView, VStack} from "native-base";
-import {useEffect, useLayoutEffect, useRef} from "react";
+import {Box, Text} from "native-base";
+import {useEffect, useRef, useState} from "react";
 import SingleChatModel from "../model/SingleChatModel";
-import {FlatList} from "react-native";
+import {FlatList, Keyboard} from "react-native";
 import {Message} from "./Message";
 import UserStore from "../model/UserStore";
+import 'react-native-get-random-values'
+import {v4 as UUID} from 'uuid'
+import {checkDateExit} from "../util/helper";
 
-const MessageView = ({roomId, headerHeight, typerHeight, typerDefaultHeight, bottomPadding, defaultBottomPadding}) => {
+const MessageView = ({roomId}) => {
     const ref = useRef()
-
-    const renderListMessage = ({item}) => {
+    const [limit, setLimit] = useState(10)
+    const [dates, setDate] = useState([])
+    const [countOfDate, setCountOfDate] = useState(0)
+    const renderMessage = (message, index, length) => {
+        const newDate = new Date()
+        const dateStr = newDate.toUTCString().slice(0, newDate.toUTCString().indexOf(newDate.getFullYear().toString()))
+        if (checkDateExit(dates, dateStr)) {
+            let tmp = [...dates]
+            tmp.push(dateStr)
+            setDate(tmp)
+            setCountOfDate(c => c + 1)
+        }
         return (
-            <Message sender={item.senderId === UserStore.user.id} messageItem={item} loader={false}/>
+            <>
+                {
+                    countOfDate === 1 ?
+                        <Box>
+                            <Box my={8}>
+                                <Text textAlign={'center'} color={'gray.400'}>{dateStr}</Text>
+                            </Box>
+                            <Message sender={UserStore.user.id === message.senderId} messageItem={message}
+                                     isLastOfList={index === length - 1}/>
+                        </Box> :
+                        <Message sender={UserStore.user.id === message.senderId} messageItem={message}
+                                 isLastOfList={index === length - 1}/>
+                }
+            </>
         )
     }
+    const renderListMessage = ({item, index}) => {
+        return (
+            <FlatList data={item}
+                      contentContainerStyle={{marginVertical: 12}}
+                      keyExtractor={message => message?.id}
+                      renderItem={({item: message, index}) => {
+                          return renderMessage(message, index, item.length)
+                      }}/>
+        )
+    }
+
     useEffect(() => {
         SingleChatModel.setMessages([])
         SingleChatModel.onReadMessage(roomId)
         return SingleChatModel.onListenChat(roomId)
     }, [roomId])
+    const [page, setPage] = useState(1)
+    useEffect(() => {
+        let pages = Math.round(SingleChatModel.messages.length / limit);
+        if (page <= 0) {
+            pages = 1
+        }
+        setPage(pages)
+    }, [])
+
     return (
-        <Box onTouchStart={() => {
-            // Keyboard.dismiss()
-        }} width={SCREEN_WIDTH} style={{minHeight: SCREEN_HEIGHT - headerHeight - 180}}
-             height={SCREEN_HEIGHT - headerHeight}
-             bgColor={'white'}>
-            <Box style={{minHeight: SCREEN_HEIGHT - (typerHeight || typerDefaultHeight) - 100}}
-                 height={SCREEN_HEIGHT - headerHeight - (typerHeight || typerDefaultHeight) - 100}>
-                {/*<ScrollView*/}
-                {/*    onContentSizeChange={(e) => {*/}
-                {/*        return ref.current.scrollToEnd({animate: true})*/}
-                {/*    }}*/}
-                {/*    ref={ref}*/}
-                {/*    contentContainerStyle={{*/}
-                {/*        paddingBottom: bottomPadding || defaultBottomPadding,*/}
-                {/*    }}*/}
-                {/*    showsVerticalScrollIndicator={false} pt={3}*/}
-                {/*    px={3}>*/}
-                {/*    <VStack space={5}>*/}
-                {/*        {SingleChatModel.messages.map((val, index) => {*/}
-                {/*            return (*/}
-                {/*                <Message key={index.toString()} loader={SingleChatModel.chatFetching}*/}
-                {/*                         sender={val.senderId === UserStore.user.id} messageItem={val}/>*/}
-                {/*            )*/}
-                {/*        })*/}
-                {/*        }*/}
-                {/*    </VStack>*/}
-                {/*</ScrollView>*/}
-                <FlatList
-                    ref={ref}
-                    inverted={true}
-                    contentContainerStyle={{
-                        paddingHorizontal: 20,
-                        paddingTop: bottomPadding || defaultBottomPadding
-                    }}
-                    data={SingleChatModel.messages.slice(0, SingleChatModel.messages.length).reverse()}
-                    showsVerticalScrollIndicator={false}
-                    renderItem={renderListMessage}
-                    keyExtractor={item => item?.id}
-                />
-            </Box>
+        <Box flex={.97} bgColor={'white'} onTouchStart={() => {
+            Keyboard.dismiss()
+        }}>
+            <FlatList
+                showsVerticalScrollIndicator={false}
+                ref={ref}
+                inverted
+                contentContainerStyle={{paddingHorizontal: 10, paddingVertical: 20}}
+                data={SingleChatModel.messageList.slice((page - 1) * (limit || 10), SingleChatModel.messageList.length).reverse()}
+                renderItem={renderListMessage}
+                keyExtractor={item => item?.id || UUID()}
+                onContentSizeChange={() => {
+                    ref.current.scrollToOffset({offset: 0, animate: true})
+                }}
+            />
         </Box>
     )
 }

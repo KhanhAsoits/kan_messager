@@ -22,7 +22,6 @@ const RecentChatScreen = ({appNav, route}) => {
     //state
     const [newChatModal, setNewChatModal] = useState(false)
     useEffect(() => {
-        console.log("model:", newChatModal)
         NewChatModel.setUserSelected([])
     }, [newChatModal])
     //static data

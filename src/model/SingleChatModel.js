@@ -1,4 +1,4 @@
-import {makeAutoObservable, values} from "mobx";
+import {makeAutoObservable, runInAction, values} from "mobx";
 import {child, get, getDatabase, onValue, ref, set, update} from "firebase/database";
 import {firebaseApp} from "../../configs/firebase_config";
 import {Message, Room} from "../../types";
@@ -7,6 +7,7 @@ import {getChildOfObject} from "../util/helper";
 
 class SingleChatModel {
     messages = []
+    messageList = []
     chatFetching = false
     roomFetching = false
     room = new Room();
@@ -34,12 +35,12 @@ class SingleChatModel {
         const messages = [...this.messages]
         messages.push(message)
         this.setMessages(messages)
+        this.onSyncMessageList()
     }
     onSendMessage = (messageBody, roomId) => {
         try {
             //    get if has exit
             const db = getDatabase(firebaseApp)
-            console.log(UserStore.user.username)
             const message = new Message(UserStore.user.id, roomId, messageBody, new Date().getTime(), UserStore.user.username)
             this.onSendLocalMessage(message, roomId)
             setTimeout(() => {
@@ -109,7 +110,6 @@ class SingleChatModel {
     }
 
     onReadMessage = (roomId) => {
-        console.log(UserStore.user)
         const db = getDatabase(firebaseApp)
         //    update readMessage
         get(child(ref(db), "chats/" + UserStore.user.id)).then(async (sns) => {
@@ -134,9 +134,9 @@ class SingleChatModel {
         const listener = onValue(messageCountRef, (sns) => {
             if (sns.exists()) {
                 if (!this.onVerifyMessage(sns.val())) {
-                    console.log('update')
                     let newMessage = [...sns.val()]
                     this.setMessages(newMessage)
+                    this.onSyncMessageList()
                 }
             }
         })
@@ -153,6 +153,39 @@ class SingleChatModel {
 
     setFetching(b) {
         this.fetching = b
+    }
+
+    setMessageList = (value) => {
+        this.messageList = value
+    }
+
+    onSyncMessageList() {
+        try {
+            let tmpMsg = [...this.messages]
+            const resultArr = []
+            let first = 0;
+            let last = 0;
+            let count = 1;
+            for (let i = first; i < tmpMsg.length; i += count) {
+                count = 0;
+                let senderId = tmpMsg[i].senderId
+                for (let j = first; j < tmpMsg.length; j++) {
+                    if (tmpMsg[j].senderId === senderId) {
+                        count++
+                    } else {
+                        break;
+                    }
+                }
+                last = count + first
+                const arr_s = tmpMsg.slice(first, last)
+                resultArr.push(arr_s)
+                first = last
+            }
+
+            this.setMessageList([...resultArr])
+        } catch (e) {
+            console.log(e)
+        }
     }
 }
 

@@ -9,7 +9,7 @@ import {useEffect, useLayoutEffect} from "react";
 const ChatHeader = ({roomId, headerHeight}) => {
 
     return (
-        <HStack width={'100%'} borderBottomWidth={1} borderBottomColor={'gray.200'} height={headerHeight}
+        <HStack width={'100%'} borderBottomWidth={1} height={headerHeight} borderBottomColor={'gray.200'}
                 backgroundColor={'white'} shadow={1} px={2}
                 justifyContent={'space-between'}
                 alignItems={'center'} space={6}

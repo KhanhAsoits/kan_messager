@@ -12,12 +12,14 @@ import Typer from "../../component/Typer";
 import {BollingLoader} from "../../component/BollingLoader";
 import SingleChatModel from "../../model/SingleChatModel";
 import UserStore from "../../model/UserStore";
+import AttachPicker from "../../component/AttachPicker";
 
 const ChatScreen = ({route}) => {
     const headerHeight = 76;
     const {roomId} = route.params
     const typerDefaultHeight = 45
     const [typerHeight, setTyperHeight] = useState(typerDefaultHeight)
+    const [attachShow, setAttachShow] = useState(false)
     const nav = useNavigation()
     const [message, setMessage] = useState('')
     const [loading, setLoading] = useState(true)
@@ -45,14 +47,28 @@ const ChatScreen = ({route}) => {
                     <Center width={SCREEN_WIDTH}>
                         <ImageBackground source={avatar} resizeMode={'cover'}
                                          style={{width: SCREEN_WIDTH, height: SCREEN_HEIGHT}}>
-                            <ChatHeader roomId={roomId} headerHeight={headerHeight}/>
-                            <MessageView bottomPadding={paddingBottom} defaultBottomPadding={defaultBottomPadding}
+
+                            <KeyboardAvoidingView
+                                height={SCREEN_HEIGHT}
+                                behavior={Platform.OS === "ios" ? "padding" : "height"}>
+                                <ChatHeader roomId={roomId} headerHeight={headerHeight}/>
+                            <MessageView bottomPadding={paddingBottom}
+                                         defaultBottomPadding={defaultBottomPadding}
                                          roomId={roomId} headerHeight={headerHeight} typerHeight={typerHeight}
                                          typerDefaultHeight={typerDefaultHeight}/>
-                            <Typer setPaddingBottom={setPaddingBottom} roomId={roomId} message={message}
-                                   typerDefaultHeight={typerDefaultHeight}
-                                   typerHeight={typerHeight}
-                                   setTyperHeight={setTyperHeight} setMessage={setMessage}></Typer>
+                            <Box position={'relative'}>
+                                {attachShow &&
+                                    <AttachPicker/>
+                                }
+                                <Typer
+                                    attach={attachShow}
+                                    setAttach={setAttachShow}
+                                    setPaddingBottom={setPaddingBottom} roomId={roomId} message={message}
+                                    typerDefaultHeight={typerDefaultHeight}
+                                    typerHeight={typerHeight}
+                                    setTyperHeight={setTyperHeight} setMessage={setMessage}></Typer>
+                            </Box>
+                            </KeyboardAvoidingView>
                         </ImageBackground>
                     </Center>
                 }
