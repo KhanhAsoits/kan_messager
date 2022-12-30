@@ -1,6 +1,8 @@
 import {Dimensions} from "react-native";
-import {getStorage, getDownloadURL, uploadBytes, ref} from 'firebase/storage'
+import {getStorage, getDownloadURL, uploadBytesResumable, ref} from 'firebase/storage'
 import {firebaseApp} from "../../configs/firebase_config";
+import 'react-native-get-random-values'
+import {v4 as UUID} from 'uuid'
 
 export const [SCREEN_WIDTH, SCREEN_HEIGHT] = [Dimensions.get('window').width, Dimensions.get('window').height]
 export const getRoomName = (nameArr, separator = ",") => {
@@ -26,26 +28,26 @@ export const checkDateExit = (dates, curDate) => {
 }
 export const uploadImageToFirebase = async (fileUri) => {
     try {
-        const response = await fetch(fileUri)
-        const blob = await response.blob()
-        const filename = fileUri.substring(fileUri.lastIndexOf("/") + 1)
+        const img = await fetch(fileUri)
+        const blob = await img.blob()
         const storage = getStorage(firebaseApp)
-        const storageRef = ref(storage, filename)
-        return uploadBytes(storageRef, blob).then((sns) => {
-            return getDownloadURL(sns.ref).then((downloadUrl) => {
-                return downloadUrl
-            })
-        })
+        const fileName = UUID() + ".png"
+        const fileRef = ref(storage, fileName);
+        const uploadTask = await uploadBytesResumable(fileRef, blob);
+        const url = await getDownloadURL(fileRef)
+        return url;
     } catch (e) {
+        console.log(e)
         return false
     }
 }
 export const serverLimitCheck = (files, limit) => {
     for (let file of files) {
-        if (file?.size > limit) {
+        if (file?.fileSize > limit) {
             return false
         }
     }
+    return true
 }
 export const getUpdateDate = (date, separator) => {
     return (

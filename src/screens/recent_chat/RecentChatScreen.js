@@ -11,7 +11,7 @@ import GroupChatTab from "./GroupChatTab";
 import PersonalChatTab from "./PersonalChatTab";
 import ChatListModel from "../../model/ChatListModel";
 import NewChatButton from "../../component/NewChatButton";
-import {useEffect, useState} from "react";
+import {useEffect, useLayoutEffect, useState} from "react";
 import {BollingLoader} from "../../component/BollingLoader";
 import {SafeAreaView} from "react-native";
 import NewChatItem from "../../component/NewChatItem";
@@ -52,7 +52,7 @@ const RecentChatScreen = ({appNav, route}) => {
         groupChatTab
     ]
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         const bsSync = async () => {
             await ChatListModel.onGetAllChatById()
         }

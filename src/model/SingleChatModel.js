@@ -1,22 +1,36 @@
 import {makeAutoObservable, runInAction, values} from "mobx";
 import {child, get, getDatabase, onValue, ref, set, update} from "firebase/database";
 import {firebaseApp} from "../../configs/firebase_config";
-import {Message, Room} from "../../types";
+import {Message, MessageBody, Room} from "../../types";
 import UserStore from "./UserStore";
-import {getChildOfObject} from "../util/helper";
+import {uploadImageToFirebase} from "../util/helper";
+import {Alert} from "react-native";
+import * as _ from 'lodash'
 
 class SingleChatModel {
+    onSendAMedia = false
     messages = []
     messageList = []
     chatFetching = false
     roomFetching = false
     room = new Room();
     fetching = true
+    showMediaPreview = false
+    media = ""
 
     constructor() {
         makeAutoObservable(this)
     }
 
+    setShowMedia = (value) => {
+        this.showMediaPreview = value
+    }
+    setMedia = (value) => {
+        this.media = value
+    }
+    setOnSendAMedia = (value) => {
+        this.onSendAMedia = value
+    }
     onFetchingRoom = (roomId) => {
         try {
             this.setRoomFetching(true)
@@ -31,18 +45,20 @@ class SingleChatModel {
             console.log(e)
         }
     }
-    onSendLocalMessage = (message, roomId) => {
+    onSendLocalMessage = (message) => {
         const messages = [...this.messages]
         messages.push(message)
         this.setMessages(messages)
         this.onSyncMessageList()
     }
-    onSendMessage = (messageBody, roomId) => {
+    onSendMessage = (messageBody, roomId, media = false, local = true, mediaType = 'image') => {
         try {
             //    get if has exit
             const db = getDatabase(firebaseApp)
             const message = new Message(UserStore.user.id, roomId, messageBody, new Date().getTime(), UserStore.user.username)
-            this.onSendLocalMessage(message, roomId)
+            if (local) {
+                this.onSendLocalMessage(message, roomId)
+            }
             setTimeout(() => {
                 get(child(ref(db), "messages/" + roomId,)).then(async (sns) => {
                     let messages = []
@@ -52,24 +68,8 @@ class SingleChatModel {
                     messages.push(message)
                     await set(ref(db, "messages/" + roomId), [...messages])
                     //    after add message , update chat list
+                    this.onSyncChatUnReadMessage(db, messageBody, roomId, media, mediaType)
                 })
-                for (let memberInRoom of this.room.members) {
-                    get(child(ref(db), "chats/" + memberInRoom)).then(async (sns) => {
-                        if (sns.exists()) {
-                            let chats = sns.val()
-                            for (let i = 0; i < chats.length; i++) {
-                                if (chats[i].roomId === roomId) {
-                                    chats[i].updatedAt = new Date().getTime()
-                                    chats[i].unReadMessage = memberInRoom !== UserStore.user.id ? chats[i].unReadMessage + 1 : 0
-                                    chats[i].lastMessage = messageBody.text
-                                }
-                            }
-                            await set(ref(db, "chats/" + memberInRoom), [...chats])
-                        } else {
-                            console.log('no result')
-                        }
-                    })
-                }
             }, 10)
         } catch (e) {
             console.log(e)
@@ -77,22 +77,23 @@ class SingleChatModel {
         }
     }
 
-    onFetchingChat = (roomId) => {
-        try {
-            this.setChatFetching(true)
-            setTimeout(() => {
-                const db = getDatabase(firebaseApp)
-                get(child(ref(db), "messages/" + roomId)).then((sns) => {
-                    if (sns.exists()) {
-                        this.setMessages(sns.val())
-                    } else {
-                        console.log('no message')
+    onSyncChatUnReadMessage = (db, messageBody, roomId, media, mediaType) => {
+        for (let memberInRoom of this.room.members) {
+            get(child(ref(db), "chats/" + memberInRoom)).then(async (sns) => {
+                if (sns.exists()) {
+                    let chats = sns.val()
+                    for (let i = 0; i < chats.length; i++) {
+                        if (chats[i].roomId === roomId) {
+                            chats[i].updatedAt = new Date().getTime()
+                            chats[i].unReadMessage = memberInRoom !== UserStore.user.id ? chats[i].unReadMessage + 1 : 0
+                            chats[i].lastMessage = media ? `${UserStore.user.username} sent an ${mediaType}.` : messageBody.text
+                        }
                     }
-                })
-                this.setChatFetching(false)
-            }, 100)
-        } catch (e) {
-            console.log(e)
+                    await set(ref(db, "chats/" + memberInRoom), [...chats])
+                } else {
+                    console.log('no result')
+                }
+            })
         }
     }
     setRoom = (value) => {
@@ -159,7 +160,7 @@ class SingleChatModel {
         this.messageList = value
     }
 
-    onSyncMessageList() {
+    onSyncMessageList(append = true) {
         try {
             let tmpMsg = [...this.messages]
             const resultArr = []
@@ -181,8 +182,81 @@ class SingleChatModel {
                 resultArr.push(arr_s)
                 first = last
             }
-
             this.setMessageList([...resultArr])
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    onSendMediaMessage(uri) {
+        try {
+            const messageBody = new MessageBody("image", "", uri)
+            const mediaMessage = new Message(UserStore.user.id, this.room.id, messageBody, new Date().getTime(), UserStore.user.username)
+            let tmp = [...this.messages]
+            tmp.push(mediaMessage)
+            this.setMessages(tmp)
+            this.onSyncMessageList()
+            return mediaMessage.id
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    onSaveMediaMessage(response) {
+        try {
+            const newMediaBody = new MessageBody("image", "", response)
+            this.onSendMessage(newMediaBody, this.room.id, true, false)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    removeErrorMessage(messageId) {
+        try {
+            let tmp = [...this.messages]
+            let removeIndex = -1;
+            for (let i = 0; i < tmp.length; i++) {
+                if (tmp[i].id === messageId) {
+                    removeIndex = i;
+                }
+            }
+            if (removeIndex !== -1 && removeIndex >= 0) {
+                tmp.slice(removeIndex, 1)
+            }
+            this.setMessages(tmp)
+            this.onSyncMessageList()
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    onSendAudioMessage = (msgBody) => {
+        try {
+            const message = new Message(UserStore.user.id, this.room.id, msgBody, new Date().getTime(), UserStore.user.username)
+            this.onSendLocalMessage(message)
+            return message.id
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    onSyncAudioMessage = async (uri) => {
+        try {
+            // send on local
+            const messageBody = new MessageBody("audio", "", uri)
+
+            const messageId = this.onSendAudioMessage(messageBody)
+            //     upload
+
+            let downloadUri = await uploadImageToFirebase(uri)
+
+            // save
+            if (downloadUri !== null) {
+                this.onSendMessage(messageBody, this.room.id, true, false, "audio")
+            } else {
+                this.removeErrorMessage(messageId)
+                Alert.alert("Error.", "Something wrong when sending audio")
+            }
         } catch (e) {
             console.log(e)
         }

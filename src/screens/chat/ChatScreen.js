@@ -13,6 +13,7 @@ import {BollingLoader} from "../../component/BollingLoader";
 import SingleChatModel from "../../model/SingleChatModel";
 import UserStore from "../../model/UserStore";
 import AttachPicker from "../../component/AttachPicker";
+import MediaPreview from "../../component/MediaPreview";
 
 const ChatScreen = ({route}) => {
     const headerHeight = 76;
@@ -25,19 +26,18 @@ const ChatScreen = ({route}) => {
     const [loading, setLoading] = useState(true)
     const [paddingBottom, setPaddingBottom] = useState(0)
     const defaultBottomPadding = 100
-    useEffect(() => {
+    useLayoutEffect(() => {
         setTimeout(() => {
             setLoading(false)
         }, 500)
     }, [])
-    useEffect(() => {
+
+    useLayoutEffect(() => {
         SingleChatModel.onFetchingRoom(roomId)
     }, [roomId])
+    useLayoutEffect(() => {
+    }, [UserStore.user.id])
 
-    useEffect(() => {
-        console.log(UserStore.user)
-    }, [UserStore.user])
-    console.log(UserStore.user)
     return (
         <SafeAreaView style={{flex: 1}}>
             <NativeBaseProvider>
@@ -45,6 +45,7 @@ const ChatScreen = ({route}) => {
                     <BollingLoader speed={200}></BollingLoader>
                     :
                     <Center width={SCREEN_WIDTH}>
+                        {SingleChatModel.showMediaPreview && <MediaPreview media={SingleChatModel.media}/>}
                         <ImageBackground source={avatar} resizeMode={'cover'}
                                          style={{width: SCREEN_WIDTH, height: SCREEN_HEIGHT}}>
 
@@ -52,22 +53,23 @@ const ChatScreen = ({route}) => {
                                 height={SCREEN_HEIGHT}
                                 behavior={Platform.OS === "ios" ? "padding" : "height"}>
                                 <ChatHeader roomId={roomId} headerHeight={headerHeight}/>
-                            <MessageView bottomPadding={paddingBottom}
-                                         defaultBottomPadding={defaultBottomPadding}
-                                         roomId={roomId} headerHeight={headerHeight} typerHeight={typerHeight}
-                                         typerDefaultHeight={typerDefaultHeight}/>
-                            <Box position={'relative'}>
-                                {attachShow &&
-                                    <AttachPicker/>
-                                }
-                                <Typer
-                                    attach={attachShow}
-                                    setAttach={setAttachShow}
-                                    setPaddingBottom={setPaddingBottom} roomId={roomId} message={message}
-                                    typerDefaultHeight={typerDefaultHeight}
-                                    typerHeight={typerHeight}
-                                    setTyperHeight={setTyperHeight} setMessage={setMessage}></Typer>
-                            </Box>
+                                <MessageView
+                                    bottomPadding={paddingBottom}
+                                    defaultBottomPadding={defaultBottomPadding}
+                                    roomId={roomId} headerHeight={headerHeight} typerHeight={typerHeight}
+                                    typerDefaultHeight={typerDefaultHeight}/>
+                                <Box position={'relative'}>
+                                    {attachShow &&
+                                        <AttachPicker setAttachShow={setAttachShow}/>
+                                    }
+                                    <Typer
+                                        attach={attachShow}
+                                        setAttach={setAttachShow}
+                                        setPaddingBottom={setPaddingBottom} roomId={roomId} message={message}
+                                        typerDefaultHeight={typerDefaultHeight}
+                                        typerHeight={typerHeight}
+                                        setTyperHeight={setTyperHeight} setMessage={setMessage}></Typer>
+                                </Box>
                             </KeyboardAvoidingView>
                         </ImageBackground>
                     </Center>
